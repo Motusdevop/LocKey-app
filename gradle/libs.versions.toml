@@ -1,12 +1,12 @@
 [versions]
-agp = "9.1.1"
+agp = "8.13.2"
 kotlin = "2.3.21"
 metro = "1.0.0"
 coreKtx = "1.18.0"
 lifecycleRuntime = "2.10.0"
 activityCompose = "1.13.0"
-composeBom = "2026.05.01"
-material3 = "1.5.0-alpha20"
+composeBom = "2025.10.00"
+material3 = "1.4.0"
 nav3 = "1.1.2"
 kotlinxSerialization = "1.11.0"
 ktor = "3.5.0"
@@ -56,6 +56,7 @@ mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
