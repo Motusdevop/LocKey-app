@@ -11,7 +11,10 @@ import com.middlespp.lockey.feature.passes.domain.usecase.OpenLockUseCase
 import com.middlespp.lockey.feature.scanner.domain.model.ScannedLockCode
 import com.middlespp.lockey.feature.scanner.domain.parse.LockQrParser
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,6 +27,9 @@ class AddPassViewModel(
         ScannerUiState(message = "Открой ссылку LocKey снаружи приложения или вставь ее сюда вручную.")
     )
     val state: StateFlow<ScannerUiState> = _state.asStateFlow()
+
+    private val _events = MutableSharedFlow<AddPassUiEvent>()
+    val events: SharedFlow<AddPassUiEvent> = _events.asSharedFlow()
 
     fun onLinkChange(value: String) {
         _state.update { it.copy(code = value) }
@@ -40,7 +46,10 @@ class AddPassViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isBusy = true, message = "Добавляем пропуск...") }
             val message = when (importPass(value)) {
-                is ImportPassResult.Saved -> "Пропуск успешно добавлен."
+                is ImportPassResult.Saved -> {
+                    _events.emit(AddPassUiEvent.PassAdded)
+                    "Пропуск успешно добавлен."
+                }
                 ImportPassResult.InvalidLink -> "Это не похоже на ссылку пропуска LocKey."
             }
             _state.update { it.copy(isBusy = false, message = message) }
@@ -53,6 +62,10 @@ class AddPassViewModel(
             override fun <T : ViewModel> create(modelClass: Class<T>): T = AddPassViewModel(importPass) as T
         }
     }
+}
+
+sealed interface AddPassUiEvent {
+    data object PassAdded : AddPassUiEvent
 }
 
 class OpenLockViewModel(
@@ -75,7 +88,6 @@ class OpenLockViewModel(
     }
 
     fun onScannedQr(value: String) {
-        onCodeChange(value)
         submitQr(value)
     }
 

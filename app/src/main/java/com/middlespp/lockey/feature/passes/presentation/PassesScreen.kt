@@ -3,6 +3,7 @@ package com.middlespp.lockey.feature.passes.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -44,9 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.middlespp.lockey.R
 import com.middlespp.lockey.feature.passes.domain.model.AccessPass
 import kotlinx.coroutines.flow.SharedFlow
 import kotlin.time.Instant
@@ -110,11 +113,11 @@ fun PassesScreen(
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 112.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                contentPadding = PaddingValues(start = 24.dp, top = 18.dp, end = 24.dp, bottom = 112.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 item {
-                    LocKeyHero(
+                    HomeHeader(
                         passCount = state.passes.size,
                         pinnedCount = state.pinnedCount,
                         onScanClick = onScanClick,
@@ -155,99 +158,109 @@ fun PassesScreen(
 }
 
 @Composable
-private fun LocKeyHero(
+private fun HomeHeader(
     passCount: Int,
     pinnedCount: Int,
     onScanClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    ElevatedCard(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.elevatedCardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp)
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(HeroBrush)
-                .padding(22.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Surface(
-                            color = Color.White.copy(alpha = 0.18f),
-                            contentColor = Color.White,
-                            shape = CircleShape
-                        ) {
-                            Text(
-                                text = "ЧАСТНЫЙ ДОСТУП",
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(18.dp))
-                        Text(
-                            text = "LocKey",
-                            style = MaterialTheme.typography.displaySmall,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Управляй доступом к доверенным замкам.",
-                            modifier = Modifier.padding(top = 8.dp),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color(0xFFD9E6FF)
-                        )
-                    }
-
-                    Text(
-                        text = "LocKey",
-                        modifier = Modifier
-                            .padding(start = 12.dp),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color(0xFFBFD3FF),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    StatPill(label = "Пропусков", value = passCount.toString())
-                    StatPill(label = "Закреплено", value = pinnedCount.toString())
-                }
-
-                Button(
-                    onClick = onScanClick,
-                    shape = MaterialTheme.shapes.large
-                ) {
-                    Text("Добавить пропуск")
-                }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "LocKey",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = Color(0xFF172033),
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Доступ к замкам и пропускам в одном месте",
+                    modifier = Modifier.padding(top = 6.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color(0xFF607086)
+                )
             }
+
+            Surface(
+                modifier = Modifier.size(58.dp),
+                color = Color(0xFFE4ECFF),
+                shape = CircleShape
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.lockey_logo),
+                    contentDescription = "LocKey",
+                    modifier = Modifier
+                        .padding(6.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StatChip(label = "пропуск", value = passCount.toString())
+            StatChip(label = "закреплено", value = pinnedCount.toString())
+        }
+
+        ActionStrip(onScanClick = onScanClick)
+    }
+}
+
+@Composable
+private fun StatChip(label: String, value: String) {
+    Surface(
+        color = Color.White.copy(alpha = 0.78f),
+        contentColor = Color(0xFF172033),
+        shape = CircleShape,
+        tonalElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(text = label, style = MaterialTheme.typography.labelMedium, color = Color(0xFF607086))
         }
     }
 }
 
 @Composable
-private fun StatPill(label: String, value: String) {
+private fun ActionStrip(onScanClick: () -> Unit) {
     Surface(
-        color = Color.White.copy(alpha = 0.16f),
+        modifier = Modifier.fillMaxWidth(),
+        color = Color(0xFF173B8F),
         contentColor = Color.White,
-        shape = MaterialTheme.shapes.large,
-        tonalElevation = 3.dp
+        shape = MaterialTheme.shapes.extraLarge,
+        tonalElevation = 4.dp
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = label, style = MaterialTheme.typography.labelMedium, color = Color(0xFFD9E6FF))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Новый пропуск",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Вставь ссылку LocKey вручную",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFFD9E6FF)
+                )
+            }
+            Button(onClick = onScanClick, shape = CircleShape) {
+                Text("Добавить")
+            }
         }
     }
 }
@@ -280,11 +293,10 @@ private fun LoadingCard() {
 
 @Composable
 private fun EmptyPassesCard(onScanClick: () -> Unit) {
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
             modifier = Modifier.padding(24.dp),
@@ -321,20 +333,19 @@ private fun PassCard(
     onDeleteClick: () -> Unit,
     onTogglePinned: () -> Unit
 ) {
-    ElevatedCard(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.elevatedCardColors(containerColor = Color(0xFFFFFFFF)),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = Color(0xFFD8E2F0),
+                    color = Color(0xFFE1E8F3),
                     shape = MaterialTheme.shapes.extraLarge
                 )
                 .padding(18.dp),
@@ -420,14 +431,6 @@ private val PremiumBackgroundBrush = Brush.verticalGradient(
         Color(0xFFF4F8FF),
         Color(0xFFEAF2FF),
         Color(0xFFF9FBFF)
-    )
-)
-
-private val HeroBrush = Brush.linearGradient(
-    colors = listOf(
-        Color(0xFF1D4ED8),
-        Color(0xFF2563EB),
-        Color(0xFF5E8CFF)
     )
 )
 

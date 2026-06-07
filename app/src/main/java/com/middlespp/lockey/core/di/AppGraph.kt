@@ -65,7 +65,8 @@ interface AppGraph {
         context.applicationContext,
         AppDatabase::class.java,
         DatabaseConfig.NAME
-    ).addMigrations(
+    ).enableMultiInstanceInvalidation()
+        .addMigrations(
         Migration1To4,
         Migration2To4,
         Migration3To4

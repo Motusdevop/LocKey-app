@@ -51,7 +51,10 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             when (val result = appGraph.importPassUseCase(link)) {
-                is ImportPassResult.Saved -> appGraph.navigator.navigate(Screen.PassDetails(result.pass.lockId))
+                is ImportPassResult.Saved -> appGraph.navigator.replaceAll(
+                    Screen.Passes,
+                    Screen.PassDetails(result.pass.lockId)
+                )
                 ImportPassResult.InvalidLink -> Unit
             }
         }

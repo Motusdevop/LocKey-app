@@ -3,6 +3,7 @@ package com.middlespp.lockey.core.navigation
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ import com.middlespp.lockey.feature.passes.presentation.details.PassDetailsScree
 import com.middlespp.lockey.feature.passes.presentation.details.PassDetailsViewModel
 import com.middlespp.lockey.feature.scanner.domain.parse.LockQrParser
 import com.middlespp.lockey.feature.scanner.presentation.AddPassScreen
+import com.middlespp.lockey.feature.scanner.presentation.AddPassUiEvent
 import com.middlespp.lockey.feature.scanner.presentation.AddPassViewModel
 import com.middlespp.lockey.feature.scanner.presentation.OpenLockScreen
 import com.middlespp.lockey.feature.scanner.presentation.OpenLockViewModel
@@ -101,6 +103,14 @@ fun NavHost(
                             )
                         )
                         val state by viewModel.state.collectAsStateWithLifecycle()
+
+                        LaunchedEffect(viewModel) {
+                            viewModel.events.collect { event ->
+                                when (event) {
+                                    AddPassUiEvent.PassAdded -> navigator.replaceAll(Screen.Passes)
+                                }
+                            }
+                        }
 
                         AddPassScreen(
                             state = state,

@@ -13,6 +13,10 @@ class Navigator {
         _backStack.update { currentBackStack -> currentBackStack + screen }
     }
 
+    fun replaceAll(vararg screens: Screen) {
+        _backStack.value = screens.toList().takeIf { it.isNotEmpty() } ?: listOf(Screen.Passes)
+    }
+
     fun pop() {
         _backStack.update { currentBackStack ->
             if (currentBackStack.size > MIN_BACK_STACK_SIZE) {
