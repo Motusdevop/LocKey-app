@@ -16,6 +16,7 @@ android {
     defaultConfig {
         applicationId = "com.middlespp.lockey"
         minSdk = 24
+        //noinspection OldTargetApi
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -39,6 +40,7 @@ android {
     buildFeatures {
         compose = true
     }
+    compileSdkMinor = 0
 }
 
 kotlin {

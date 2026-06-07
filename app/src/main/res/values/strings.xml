@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lockey</string>
+    <string name="app_name">LocKey</string>
     <string name="passes_screen_placeholder">Список пропусков</string>
     <string name="pass_details_screen_placeholder">Детали пропуска: %1$s</string>
     <string name="scanner_screen_placeholder">Сканер (Замок: %1$s)</string>

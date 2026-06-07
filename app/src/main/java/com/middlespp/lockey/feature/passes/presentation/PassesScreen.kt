@@ -1,6 +1,5 @@
 package com.middlespp.lockey.feature.passes.presentation
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,12 +42,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -77,14 +71,14 @@ fun PassesScreen(
             when (event) {
                 is PassesUiEvent.PassDeleted -> {
                     val result = snackbarHostState.showSnackbar(
-                        message = "Pass ${event.lockId} removed",
-                        actionLabel = "Undo",
+                        message = "Пропуск ${event.lockId} удален",
+                        actionLabel = "Отменить",
                         duration = SnackbarDuration.Short
                     )
                     if (result == SnackbarResult.ActionPerformed) onUndoDelete()
                 }
 
-                PassesUiEvent.ImportFailed -> snackbarHostState.showSnackbar("Unable to import pass")
+                PassesUiEvent.ImportFailed -> snackbarHostState.showSnackbar("Не удалось импортировать пропуск")
             }
         }
     }
@@ -134,8 +128,8 @@ fun PassesScreen(
                     else -> {
                         item {
                             SectionHeader(
-                                title = "Access passes",
-                                subtitle = "Sorted by pinned and latest bookings"
+                                title = "Пропуска доступа",
+                                subtitle = "Сначала закрепленные и ближайшие бронирования"
                             )
                         }
 
@@ -170,8 +164,8 @@ private fun LocKeyHero(
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+        colors = CardDefaults.elevatedCardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp)
     ) {
         Box(
             modifier = Modifier
@@ -187,12 +181,12 @@ private fun LocKeyHero(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Surface(
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f),
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            color = Color.White.copy(alpha = 0.18f),
+                            contentColor = Color.White,
                             shape = CircleShape
                         ) {
                             Text(
-                                text = "PRIVATE ACCESS",
+                                text = "ЧАСТНЫЙ ДОСТУП",
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold
@@ -202,31 +196,37 @@ private fun LocKeyHero(
                         Text(
                             text = "LocKey",
                             style = MaterialTheme.typography.displaySmall,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Premium access control for every lock you trust.",
+                            text = "Управляй доступом к доверенным замкам.",
                             modifier = Modifier.padding(top = 8.dp),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color(0xFFD9E6FF)
                         )
                     }
 
-                    LocKeyMark(
+                    Text(
+                        text = "LocKey",
                         modifier = Modifier
-                            .size(94.dp)
-                            .padding(start = 12.dp)
+                            .padding(start = 12.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color(0xFFBFD3FF),
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    StatPill(label = "Passes", value = passCount.toString())
-                    StatPill(label = "Pinned", value = pinnedCount.toString())
+                    StatPill(label = "Пропусков", value = passCount.toString())
+                    StatPill(label = "Закреплено", value = pinnedCount.toString())
                 }
 
-                Button(onClick = onScanClick, shape = MaterialTheme.shapes.large) {
-                    Text("Scan QR pass")
+                Button(
+                    onClick = onScanClick,
+                    shape = MaterialTheme.shapes.large
+                ) {
+                    Text("Добавить пропуск")
                 }
             }
         }
@@ -236,8 +236,8 @@ private fun LocKeyHero(
 @Composable
 private fun StatPill(label: String, value: String) {
     Surface(
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        color = Color.White.copy(alpha = 0.16f),
+        contentColor = Color.White,
         shape = MaterialTheme.shapes.large,
         tonalElevation = 3.dp
     ) {
@@ -247,7 +247,7 @@ private fun StatPill(label: String, value: String) {
         ) {
             Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(6.dp))
-            Text(text = label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = label, style = MaterialTheme.typography.labelMedium, color = Color(0xFFD9E6FF))
         }
     }
 }
@@ -255,8 +255,8 @@ private fun StatPill(label: String, value: String) {
 @Composable
 private fun SectionHeader(title: String, subtitle: String) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        Text(text = subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color(0xFF172033))
+        Text(text = subtitle, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF607086))
     }
 }
 
@@ -273,7 +273,7 @@ private fun LoadingCard() {
         ) {
             CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
             Spacer(modifier = Modifier.width(16.dp))
-            Text(text = "Preparing your access passes", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "Готовим пропуска доступа", style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
@@ -291,19 +291,24 @@ private fun EmptyPassesCard(onScanClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            LocKeyMark(modifier = Modifier.size(108.dp))
             Text(
-                text = "No passes yet",
+                text = "LocKey",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Пропусков пока нет",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Scan a LocKey QR code to add your first access pass. Your upcoming stays and trusted locks will appear here.",
+                text = "Открой ссылку LocKey или вставь ее вручную, чтобы добавить первый пропуск. Здесь появятся бронирования и доверенные замки.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Button(onClick = onScanClick, shape = MaterialTheme.shapes.large) {
-                Text("Scan QR code")
+                Text("Добавить пропуск")
             }
         }
     }
@@ -321,15 +326,15 @@ private fun PassCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.elevatedCardColors(containerColor = Color(0xFFFFFFFF)),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.14f),
+                    color = Color(0xFFD8E2F0),
                     shape = MaterialTheme.shapes.extraLarge
                 )
                 .padding(18.dp),
@@ -360,22 +365,22 @@ private fun PassCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "Valid until ${pass.validUntil.shortLabel()}",
+                        text = "Действует до ${pass.validUntil.shortLabel()}",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = Color(0xFF607086),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
 
                 Surface(
-                    color = if (pass.isPinned) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = if (pass.isPinned) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (pass.isPinned) Color(0xFFDCE7FF) else Color(0xFFE9EEF7),
+                    contentColor = if (pass.isPinned) Color(0xFF0D3475) else Color(0xFF4C5968),
                     shape = CircleShape,
                     modifier = Modifier.clickable(onClick = onTogglePinned)
                 ) {
                     Text(
-                        text = if (pass.isPinned) "Pinned" else "Pin",
+                        text = if (pass.isPinned) "Закреплен" else "Закрепить",
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold
@@ -389,7 +394,7 @@ private fun PassCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(text = "Booking window", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = "Окно бронирования", style = MaterialTheme.typography.labelMedium, color = Color(0xFF607086))
                     Text(
                         text = "${pass.bookingStartsAt.shortLabel()} - ${pass.bookingEndsAt.shortLabel()}",
                         style = MaterialTheme.typography.bodyMedium,
@@ -398,46 +403,10 @@ private fun PassCard(
                 }
 
                 TextButton(onClick = onDeleteClick) {
-                    Text("Delete")
+                    Text("Удалить", color = Color(0xFF2E6BFF))
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun LocKeyMark(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier.aspectRatio(1f)) {
-        val blue = Color(0xFF2E6BFF)
-        val ink = Color(0xFF111820)
-        val slate = Color(0xFF607086)
-        val white = Color(0xFFEFF6FF)
-
-        drawCircle(color = slate.copy(alpha = 0.28f), radius = size.minDimension * 0.48f, center = center)
-        drawRoundRect(
-            color = ink,
-            topLeft = Offset(size.width * 0.17f, size.height * 0.16f),
-            size = Size(size.width * 0.66f, size.height * 0.72f),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.width * 0.18f, size.width * 0.18f),
-            style = Stroke(width = size.width * 0.06f)
-        )
-        drawCircle(color = white, radius = size.minDimension * 0.28f, center = Offset(size.width * 0.5f, size.height * 0.38f))
-        drawCircle(color = blue, radius = size.minDimension * 0.16f, center = Offset(size.width * 0.5f, size.height * 0.66f))
-        drawLine(
-            color = white,
-            start = Offset(size.width * 0.5f, size.height * 0.66f),
-            end = Offset(size.width * 0.5f, size.height * 0.88f),
-            strokeWidth = size.width * 0.06f,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            color = white,
-            start = Offset(size.width * 0.5f, size.height * 0.82f),
-            end = Offset(size.width * 0.64f, size.height * 0.82f),
-            strokeWidth = size.width * 0.045f,
-            cap = StrokeCap.Round
-        )
-        drawCircle(color = white, radius = size.minDimension * 0.045f, center = Offset(size.width * 0.5f, size.height * 0.66f))
     }
 }
 
@@ -448,23 +417,23 @@ private fun Instant.shortLabel(): String = toString()
 
 private val PremiumBackgroundBrush = Brush.verticalGradient(
     colors = listOf(
-        Color(0xFFF7FAFF),
-        Color(0xFFEAF1FB),
-        Color(0xFFF8FAFF)
+        Color(0xFFF4F8FF),
+        Color(0xFFEAF2FF),
+        Color(0xFFF9FBFF)
     )
 )
 
 private val HeroBrush = Brush.linearGradient(
     colors = listOf(
-        Color(0xFFFFFFFF),
-        Color(0xFFEAF3FF),
-        Color(0xFFDCE8F8)
+        Color(0xFF1D4ED8),
+        Color(0xFF2563EB),
+        Color(0xFF5E8CFF)
     )
 )
 
 private val PassIconBrush = Brush.linearGradient(
     colors = listOf(
-        Color(0xFF2E6BFF),
-        Color(0xFF111820)
+        Color(0xFF4F7DFF),
+        Color(0xFF173B8F)
     )
 )

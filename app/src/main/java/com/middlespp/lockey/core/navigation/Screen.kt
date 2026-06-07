@@ -12,5 +12,8 @@ sealed interface Screen : NavKey {
     data class PassDetails(val lockId: String) : Screen
 
     @Serializable
-    data class Scanner(val lockId: String? = null) : Screen
+    data object AddPass : Screen
+
+    @Serializable
+    data class OpenLock(val lockId: String) : Screen
 }

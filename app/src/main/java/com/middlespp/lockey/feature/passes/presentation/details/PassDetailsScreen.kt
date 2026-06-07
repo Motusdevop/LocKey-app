@@ -45,9 +45,9 @@ fun PassDetailsScreen(
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = onBackClick) { Text("Back") }
+                TextButton(onClick = onBackClick) { Text("Назад") }
                 Text(
-                    text = "Pass details",
+                    text = "Детали пропуска",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -55,7 +55,7 @@ fun PassDetailsScreen(
 
             when {
                 state.isLoading -> CircularProgressIndicator()
-                state.details == null -> Text("Pass not found", style = MaterialTheme.typography.bodyLarge)
+                state.details == null -> Text("Пропуск не найден", style = MaterialTheme.typography.bodyLarge)
                 else -> {
                     val pass = state.details.pass
                     Card(
@@ -68,16 +68,16 @@ fun PassDetailsScreen(
                             verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
                             Text(pass.lockId, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                            DetailRow("Access code", pass.accessCode)
-                            DetailRow("Starts", pass.bookingStartsAt.shortLabel())
-                            DetailRow("Ends", pass.bookingEndsAt.shortLabel())
+                            DetailRow("Код доступа", pass.accessCode)
+                            DetailRow("Начинается", pass.bookingStartsAt.shortLabel())
+                            DetailRow("Заканчивается", pass.bookingEndsAt.shortLabel())
                             Spacer(modifier = Modifier.height(4.dp))
                             Button(
                                 onClick = { onScanClick(pass.lockId) },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = MaterialTheme.shapes.large
                             ) {
-                                Text("Scan lock QR")
+                                Text("Сканировать QR замка")
                             }
                         }
                     }

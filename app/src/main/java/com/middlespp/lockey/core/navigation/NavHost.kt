@@ -22,8 +22,10 @@ import com.middlespp.lockey.feature.passes.presentation.PassesViewModel
 import com.middlespp.lockey.feature.passes.presentation.details.PassDetailsScreen
 import com.middlespp.lockey.feature.passes.presentation.details.PassDetailsViewModel
 import com.middlespp.lockey.feature.scanner.domain.parse.LockQrParser
-import com.middlespp.lockey.feature.scanner.presentation.ScannerScreen
-import com.middlespp.lockey.feature.scanner.presentation.ScannerViewModel
+import com.middlespp.lockey.feature.scanner.presentation.AddPassScreen
+import com.middlespp.lockey.feature.scanner.presentation.AddPassViewModel
+import com.middlespp.lockey.feature.scanner.presentation.OpenLockScreen
+import com.middlespp.lockey.feature.scanner.presentation.OpenLockViewModel
 
 @Composable
 fun NavHost(
@@ -67,7 +69,7 @@ fun NavHost(
                             state = state,
                             events = viewModel.uiEvents,
                             onPassClick = { lockId -> navigator.navigate(Screen.PassDetails(lockId)) },
-                            onScanClick = { navigator.navigate(Screen.Scanner()) },
+                            onScanClick = { navigator.navigate(Screen.AddPass) },
                             onDeletePass = viewModel::delete,
                             onUndoDelete = viewModel::undoDelete,
                             onTogglePinned = viewModel::togglePinned,
@@ -87,29 +89,44 @@ fun NavHost(
 
                         PassDetailsScreen(
                             state = state,
-                            onScanClick = { lockId -> navigator.navigate(Screen.Scanner(lockId)) },
+                            onScanClick = { lockId -> navigator.navigate(Screen.OpenLock(lockId)) },
                             onBackClick = { navigator.pop() }
                         )
                     }
 
-                    is Screen.Scanner -> {
-                        val viewModel = viewModel<ScannerViewModel>(
-                            key = "scanner:${screen.lockId.orEmpty()}",
-                            factory = ScannerViewModel.factory(
+                    Screen.AddPass -> {
+                        val viewModel = viewModel<AddPassViewModel>(
+                            factory = AddPassViewModel.factory(
+                                importPass = importPass
+                            )
+                        )
+                        val state by viewModel.state.collectAsStateWithLifecycle()
+
+                        AddPassScreen(
+                            state = state,
+                            onLinkChange = viewModel::onLinkChange,
+                            onSubmitClick = viewModel::submit,
+                            onBackClick = { navigator.pop() }
+                        )
+                    }
+
+                    is Screen.OpenLock -> {
+                        val viewModel = viewModel<OpenLockViewModel>(
+                            key = "open-lock:${screen.lockId}",
+                            factory = OpenLockViewModel.factory(
                                 lockId = screen.lockId,
                                 getPass = getPass,
-                                importPass = importPass,
                                 openLock = openLock,
                                 qrParser = lockQrParser
                             )
                         )
                         val state by viewModel.state.collectAsStateWithLifecycle()
 
-                        ScannerScreen(
+                        OpenLockScreen(
                             state = state,
                             onCodeChange = viewModel::onCodeChange,
-                            onScannedCode = viewModel::onScannedCode,
-                            onSubmitClick = viewModel::submit,
+                            onScannedQr = viewModel::onScannedQr,
+                            onSubmitCodeClick = viewModel::submitManualCode,
                             onBackClick = { navigator.pop() }
                         )
                     }
