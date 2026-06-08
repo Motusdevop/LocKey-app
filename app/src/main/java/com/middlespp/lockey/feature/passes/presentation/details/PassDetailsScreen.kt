@@ -60,7 +60,11 @@ fun PassDetailsScreen(
 
             when {
                 state.isLoading -> CircularProgressIndicator()
-                state.details == null -> Text("Пропуск не найден", style = MaterialTheme.typography.bodyLarge)
+                state.details == null -> Text(
+                    "Пропуск не найден",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
                 else -> {
                     val pass = state.details.pass
                     Card(
@@ -72,7 +76,11 @@ fun PassDetailsScreen(
                             modifier = Modifier.padding(22.dp),
                             verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
-                            Text(pass.lockId, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                            Text(
+                                pass.lockId,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                             DetailRow("Код доступа", pass.accessCode)
                             DetailRow("Начинается", pass.bookingStartsAt.shortLabel())
                             DetailRow("Заканчивается", pass.bookingEndsAt.shortLabel())
@@ -95,7 +103,11 @@ fun PassDetailsScreen(
 @Composable
 private fun DetailRow(label: String, value: String) {
     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
     }
 }

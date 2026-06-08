@@ -30,12 +30,13 @@ class PassDetailsViewModel(
     }
 
     companion object {
-        fun factory(lockId: String, getPass: GetPassUseCase): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = PassDetailsViewModel(
-                lockId = lockId,
-                getPass = getPass
-            ) as T
-        }
+        fun factory(lockId: String, getPass: GetPassUseCase): ViewModelProvider.Factory =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = PassDetailsViewModel(
+                    lockId = lockId,
+                    getPass = getPass
+                ) as T
+            }
     }
 }

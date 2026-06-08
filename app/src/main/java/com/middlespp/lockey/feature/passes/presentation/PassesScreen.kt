@@ -1,9 +1,9 @@
 package com.middlespp.lockey.feature.passes.presentation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -26,7 +25,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -57,7 +55,6 @@ import com.middlespp.lockey.feature.passes.domain.model.AccessPass
 import kotlinx.coroutines.flow.SharedFlow
 import kotlin.time.Instant
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PassesScreen(
     state: PassesUiState,
@@ -112,7 +109,12 @@ fun PassesScreen(
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 24.dp, top = 18.dp, end = 24.dp, bottom = 112.dp),
+                contentPadding = PaddingValues(
+                    start = 24.dp,
+                    top = 18.dp,
+                    end = 24.dp,
+                    bottom = 112.dp
+                ),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 item {
@@ -120,6 +122,7 @@ fun PassesScreen(
                         passCount = state.passes.size,
                         pinnedCount = state.pinnedCount,
                         onScanClick = onScanClick,
+                        showActionStrip = state.hasPasses,
                         modifier = Modifier.statusBarsPadding()
                     )
                 }
@@ -161,6 +164,7 @@ private fun HomeHeader(
     passCount: Int,
     pinnedCount: Int,
     onScanClick: () -> Unit,
+    showActionStrip: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -208,7 +212,9 @@ private fun HomeHeader(
             StatChip(label = "закреплено", value = pinnedCount.toString())
         }
 
-        ActionStrip(onScanClick = onScanClick)
+        if (showActionStrip) {
+            ActionStrip(onScanClick = onScanClick)
+        }
     }
 }
 
@@ -224,9 +230,17 @@ private fun StatChip(label: String, value: String) {
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(modifier = Modifier.width(6.dp))
-            Text(text = label, style = MaterialTheme.typography.labelMedium, color = Color(0xFF607086))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = Color(0xFF607086)
+            )
         }
     }
 }
@@ -267,8 +281,17 @@ private fun ActionStrip(onScanClick: () -> Unit) {
 @Composable
 private fun SectionHeader(title: String, subtitle: String) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color(0xFF172033))
-        Text(text = subtitle, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF607086))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF172033)
+        )
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF607086)
+        )
     }
 }
 
@@ -355,7 +378,12 @@ private fun PassCard(
                         .background(PassIconBrush),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "K", color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "K",
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 Spacer(modifier = Modifier.width(14.dp))
@@ -398,7 +426,11 @@ private fun PassCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(text = "Окно бронирования", style = MaterialTheme.typography.labelMedium, color = Color(0xFF607086))
+                    Text(
+                        text = "Окно бронирования",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color(0xFF607086)
+                    )
                     Text(
                         text = "${pass.bookingStartsAt.shortLabel()} - ${pass.bookingEndsAt.shortLabel()}",
                         style = MaterialTheme.typography.bodyMedium,

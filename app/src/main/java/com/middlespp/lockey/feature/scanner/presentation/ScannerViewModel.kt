@@ -10,8 +10,8 @@ import com.middlespp.lockey.feature.passes.domain.usecase.ImportPassUseCase
 import com.middlespp.lockey.feature.passes.domain.usecase.OpenLockUseCase
 import com.middlespp.lockey.feature.scanner.domain.model.ScannedLockCode
 import com.middlespp.lockey.feature.scanner.domain.parse.LockQrParser
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -50,6 +50,7 @@ class AddPassViewModel(
                     _events.emit(AddPassUiEvent.PassAdded)
                     "Пропуск успешно добавлен."
                 }
+
                 ImportPassResult.InvalidLink -> "Это не похоже на ссылку пропуска LocKey."
             }
             _state.update { it.copy(isBusy = false, message = message) }
@@ -57,10 +58,12 @@ class AddPassViewModel(
     }
 
     companion object {
-        fun factory(importPass: ImportPassUseCase): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = AddPassViewModel(importPass) as T
-        }
+        fun factory(importPass: ImportPassUseCase): ViewModelProvider.Factory =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                    AddPassViewModel(importPass) as T
+            }
     }
 }
 
