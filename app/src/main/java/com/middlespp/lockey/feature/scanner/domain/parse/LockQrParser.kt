@@ -7,24 +7,29 @@ import java.net.URI
 class LockQrParser {
     fun parse(value: String): ScannedLockCode? {
         val uri = runCatching { URI(value.trim()) }.getOrNull() ?: return null
-        if (!uri.isSupportedLockCodeUrl()) return null
-
-        val path = uri.path.orEmpty()
-        val lockId = path.removePrefix(QrCodeConfig.OPEN_PATH_PREFIX).takeIf { it.isNotBlank() }
-            ?: return null
         val lockCode = uri.queryParameter(QrCodeConfig.LOCK_CODE_QUERY)?.takeIf { it.isNotBlank() }
-            ?: return null
+            ?: return plainLockCode(value)
+
+        val lockId = uri.lockIdFromPath()
 
         return ScannedLockCode(
-            lockId = lockId,
+            lockId = lockId.orEmpty(),
             lockCode = lockCode
         )
     }
 
-    private fun URI.isSupportedLockCodeUrl(): Boolean =
-        scheme == QrCodeConfig.SCHEME &&
-            host == QrCodeConfig.HOST &&
-            path.orEmpty().startsWith(QrCodeConfig.OPEN_PATH_PREFIX)
+    private fun URI.lockIdFromPath(): String? {
+        val path = path.orEmpty()
+        if (scheme !in QrCodeConfig.SCHEMES || host.isNullOrBlank()) return null
+        return when {
+            path.startsWith(QrCodeConfig.OPEN_PATH_PREFIX) -> path.removePrefix(QrCodeConfig.OPEN_PATH_PREFIX)
+            else -> path.substringAfterLast('/')
+        }.trim('/').takeIf { it.isNotBlank() }
+    }
+
+    private fun plainLockCode(value: String): ScannedLockCode? = value
+        .takeIf { it.isNotBlank() && !it.contains("://") && !it.contains('?') }
+        ?.let { ScannedLockCode(lockId = "", lockCode = it) }
 
     private fun URI.queryParameter(name: String): String? = rawQuery
         ?.split('&')

@@ -16,10 +16,43 @@ class LockQrParserTest {
     }
 
     @Test
-    fun `returns null for another host`() {
+    fun `parses https lock QR code`() {
+        val result = parser.parse("https://45.154.35.214/LocKey/open/studio-a1?s=A1B2C3")
+
+        assertEquals("studio-a1", result?.lockId)
+        assertEquals("A1B2C3", result?.lockCode)
+    }
+
+    @Test
+    fun `parses lock QR code with trailing slash`() {
+        val result = parser.parse("http://45.154.35.214/LocKey/open/studio-a1/?s=A1B2C3")
+
+        assertEquals("studio-a1", result?.lockId)
+        assertEquals("A1B2C3", result?.lockCode)
+    }
+
+    @Test
+    fun `parses plain lock code`() {
+        val result = parser.parse("A1B2C3")
+
+        assertEquals("", result?.lockId)
+        assertEquals("A1B2C3", result?.lockCode)
+    }
+
+    @Test
+    fun `parses lock QR code from another host`() {
         val result = parser.parse("http://example.com/LocKey/open/studio-a1?s=A1B2C3")
 
-        assertNull(result)
+        assertEquals("studio-a1", result?.lockId)
+        assertEquals("A1B2C3", result?.lockCode)
+    }
+
+    @Test
+    fun `parses lock code query from another path`() {
+        val result = parser.parse("https://example.com/locks/studio-a1?s=A1B2C3")
+
+        assertEquals("studio-a1", result?.lockId)
+        assertEquals("A1B2C3", result?.lockCode)
     }
 
     @Test
@@ -38,7 +71,7 @@ class LockQrParserTest {
 
     @Test
     fun `returns null for unsupported path`() {
-        val result = parser.parse("http://45.154.35.214/LocKey/locks/studio-a1?s=A1B2C3")
+        val result = parser.parse("http://45.154.35.214/LocKey/locks/studio-a1")
 
         assertNull(result)
     }

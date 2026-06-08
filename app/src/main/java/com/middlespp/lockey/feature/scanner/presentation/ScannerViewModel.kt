@@ -86,13 +86,22 @@ class OpenLockViewModel(
     )
     val state: StateFlow<ScannerUiState> = _state.asStateFlow()
 
-    fun onCodeChange(value: String) {
-        _state.update { it.copy(code = value) }
+    fun resetScannerState() {
+        _state.update {
+            it.copy(
+                code = "",
+                message = "Отсканируй QR замка или введи код, который указан на замке.",
+                isBusy = false,
+                isSuccess = false
+            )
+        }
     }
 
-    fun onScannedQr(value: String) {
-        submitQr(value)
+    fun onCodeChange(value: String) {
+        _state.update { it.copy(code = value, isSuccess = false) }
     }
+
+    fun onScannedQr(value: String): Boolean = submitQr(value)
 
     fun submitManualCode() {
         val code = state.value.code.trim()
@@ -100,28 +109,38 @@ class OpenLockViewModel(
         openLockWith(ScannedLockCode(lockId = lockId, lockCode = code))
     }
 
-    private fun submitQr(rawValue: String) {
+    private fun submitQr(rawValue: String): Boolean {
+        if (state.value.isBusy || state.value.isSuccess) return false
+
         val value = rawValue.trim()
-        if (value.isBlank()) return
+        if (value.isBlank()) return false
+
+        _state.update { it.copy(code = value, message = "QR распознан. Проверяем код замка...", isSuccess = false) }
 
         val scannedCode = qrParser.parse(value)
-        if (scannedCode == null) {
-            _state.update { it.copy(message = "Этот QR-код не является кодом замка.") }
-            return
+        val code = scannedCode?.takeIf { it.lockId.isNotBlank() } ?: scannedCode?.copy(lockId = lockId)
+        if (code == null) {
+            _state.update { it.copy(message = "QR распознан, но это не код замка.") }
+            return false
         }
 
-        openLockWith(scannedCode)
+        openLockWith(code)
+        return true
     }
 
     private fun openLockWith(scannedCode: ScannedLockCode) {
+        if (state.value.isBusy) return
+
+        _state.update { it.copy(code = scannedCode.lockCode, isBusy = true, isSuccess = false, message = "Проверяем код замка...") }
         viewModelScope.launch {
-            _state.update { it.copy(isBusy = true, message = "Проверяем код замка...") }
             val details = getPass(lockId)
+            val result = details?.let { openLock(it.pass, scannedCode) }
             val message = when {
                 details == null -> "Пропуск не найден."
-                else -> openLock(details.pass, scannedCode).message()
+                result != null -> result.message()
+                else -> "Не удалось открыть этот замок."
             }
-            _state.update { it.copy(isBusy = false, message = message) }
+            _state.update { it.copy(isBusy = false, isSuccess = result is OpenLockResult.CommandSent, message = message) }
         }
     }
 

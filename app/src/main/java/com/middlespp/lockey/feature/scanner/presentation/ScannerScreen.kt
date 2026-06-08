@@ -2,6 +2,7 @@ package com.middlespp.lockey.feature.scanner.presentation
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Size
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
@@ -13,17 +14,24 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -33,6 +41,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -48,6 +57,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -131,13 +141,11 @@ fun AddPassScreen(
 fun OpenLockScreen(
     state: ScannerUiState,
     onCodeChange: (String) -> Unit,
-    onScannedQr: (String) -> Unit,
+    onScannedQr: (String) -> Boolean,
     onSubmitCodeClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var lastScannedCode by remember { mutableStateOf<String?>(null) }
-
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
             modifier = modifier
@@ -145,6 +153,8 @@ fun OpenLockScreen(
                 .background(ScannerBackgroundBrush)
                 .padding(innerPadding)
                 .statusBarsPadding()
+                .imePadding()
+                .verticalScroll(rememberScrollState())
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
@@ -161,12 +171,8 @@ fun OpenLockScreen(
                 title = "Сканировать QR замка",
                 description = "Наведи камеру на QR-код на замке. После распознавания отправим запрос на открытие.",
                 enabled = !state.isBusy,
-                onQrCodeScanned = { code ->
-                    if (code != lastScannedCode) {
-                        lastScannedCode = code
-                        onScannedQr(code)
-                    }
-                }
+                isSuccess = state.isSuccess,
+                onQrCodeScanned = { code -> onScannedQr(code) }
             )
 
             Card(
@@ -193,7 +199,11 @@ fun OpenLockScreen(
                         onValueChange = onCodeChange,
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Код с замка") },
-                        singleLine = true
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Characters,
+                            autoCorrectEnabled = false
+                        )
                     )
                     Button(
                         onClick = onSubmitCodeClick,
@@ -214,6 +224,7 @@ private fun QrScanCard(
     title: String,
     description: String,
     enabled: Boolean,
+    isSuccess: Boolean,
     onQrCodeScanned: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -249,6 +260,30 @@ private fun QrScanCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            if (isSuccess) {
+                Surface(
+                    color = Color(0xFFE6F5EE),
+                    contentColor = Color(0xFF1F8F5F),
+                    shape = MaterialTheme.shapes.large
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Text(
+                            "Замок открыт",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
 
             if (hasCameraPermission) {
                 QrCameraPreview(
@@ -330,6 +365,7 @@ private fun QrCameraPreview(
                     preview.setSurfaceProvider(previewView.surfaceProvider)
                 }
                 val imageAnalysis = ImageAnalysis.Builder()
+                    .setTargetResolution(Size(1280, 720))
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .also { analysis ->
@@ -406,7 +442,8 @@ private fun ImageProxy.scanQrCode(
     val inputImage = InputImage.fromMediaImage(mediaImage, imageInfo.rotationDegrees)
     scanner.process(inputImage)
         .addOnSuccessListener { barcodes ->
-            barcodes.firstNotNullOfOrNull { barcode -> barcode.rawValue }?.let(onQrCodeScanned)
+            barcodes.firstNotNullOfOrNull { barcode -> barcode.rawValue ?: barcode.displayValue }
+                ?.let(onQrCodeScanned)
         }
         .addOnCompleteListener {
             onComplete()

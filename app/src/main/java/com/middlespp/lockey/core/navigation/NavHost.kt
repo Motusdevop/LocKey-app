@@ -132,6 +132,10 @@ fun NavHost(
                         )
                         val state by viewModel.state.collectAsStateWithLifecycle()
 
+                        LaunchedEffect(screen) {
+                            viewModel.resetScannerState()
+                        }
+
                         OpenLockScreen(
                             state = state,
                             onCodeChange = viewModel::onCodeChange,

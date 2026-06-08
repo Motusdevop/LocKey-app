@@ -22,8 +22,10 @@ import com.middlespp.lockey.feature.passes.domain.usecase.SetPassPinnedUseCase
 import com.middlespp.lockey.feature.passes.domain.usecase.UpdatePassOrderUseCase
 import com.middlespp.lockey.feature.scanner.domain.parse.LockQrParser
 import com.middlespp.lockey.feature.scanner.domain.usecase.CheckLockCodeUseCase
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.createGraphFactory
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -32,7 +34,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@DependencyGraph
+@DependencyGraph(AppScope::class)
 interface AppGraph {
     val navigator: Navigator
     val accessRepository: AccessRepository
@@ -46,14 +48,17 @@ interface AppGraph {
     val openLockUseCase: OpenLockUseCase
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideNavigator(): Navigator = Navigator()
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideJson(): Json = Json {
         ignoreUnknownKeys = true
     }
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideHttpClient(json: Json): HttpClient = HttpClient(OkHttp) {
         install(ContentNegotiation) {
             json(json)
@@ -61,6 +66,7 @@ interface AppGraph {
     }
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideDatabase(context: Context): AppDatabase = Room.databaseBuilder(
         context.applicationContext,
         AppDatabase::class.java,
@@ -73,15 +79,19 @@ interface AppGraph {
     ).build()
 
     @Provides
+    @SingleIn(AppScope::class)
     fun providePassDao(database: AppDatabase): PassDao = database.passDao()
 
     @Provides
+    @SingleIn(AppScope::class)
     fun providePassStore(dao: PassDao): PassStore = RoomPassStore(dao)
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideAccessApi(httpClient: HttpClient): AccessApi = AccessApi(httpClient)
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideAccessRepository(
         api: AccessApi,
         passStore: PassStore
@@ -91,35 +101,44 @@ interface AppGraph {
     )
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideCheckLockCodeUseCase(): CheckLockCodeUseCase = CheckLockCodeUseCase()
 
     @Provides
+    @SingleIn(AppScope::class)
     fun providePassLinkParser(): PassLinkParser = PassLinkParser()
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideLockQrParser(): LockQrParser = LockQrParser()
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideGetPassUseCase(accessRepository: AccessRepository): GetPassUseCase =
         GetPassUseCase(accessRepository)
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideGetPassesUseCase(accessRepository: AccessRepository): GetPassesUseCase =
         GetPassesUseCase(accessRepository)
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideDeletePassUseCase(accessRepository: AccessRepository): DeletePassUseCase =
         DeletePassUseCase(accessRepository)
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideSetPassPinnedUseCase(accessRepository: AccessRepository): SetPassPinnedUseCase =
         SetPassPinnedUseCase(accessRepository)
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideUpdatePassOrderUseCase(accessRepository: AccessRepository): UpdatePassOrderUseCase =
         UpdatePassOrderUseCase(accessRepository)
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideImportPassUseCase(
         parser: PassLinkParser,
         accessRepository: AccessRepository
@@ -129,6 +148,7 @@ interface AppGraph {
     )
 
     @Provides
+    @SingleIn(AppScope::class)
     fun provideOpenLockUseCase(
         checkLockCodeUseCase: CheckLockCodeUseCase,
         accessRepository: AccessRepository
